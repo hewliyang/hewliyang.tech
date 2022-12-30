@@ -15,10 +15,10 @@ const datetime = date.toISOString();
 const postDate = getFormattedDate(date, { month: "short" });
 ---
 
-<time datetime={datetime} class="min-w-[120px] text-gray-500">{postDate}</time>
 <Element>
-	<a href={post.url} class="cactus-link inline-block line-clamp-1" rel="prefetch">
+	<a href={post.url} class="inline-block line-clamp-1 text-lg font-semibold" rel="prefetch">
 		{post.frontmatter.title}
 	</a>
+	<time datetime={datetime} class="min-w-[120px] text-gray-500 text-xs mb-5">{postDate}</time>
 </Element>
 {withDesc && <q class="block italic line-clamp-3">{post.frontmatter.description}</q>}

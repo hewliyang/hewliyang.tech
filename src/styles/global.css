@@ -13,7 +13,7 @@
 
 	:root.dark {
 		color-scheme: dark;
-		--theme-bg: #1d1f21;
+		--theme-bg: #0f0e0e;
 		--theme-link: #d480aa;
 		--theme-text: #c9cacc;
 		--theme-accent: #2bbc89;
@@ -27,7 +27,7 @@
 	}
 
 	html body {
-		@apply mx-auto flex h-full max-w-3xl flex-col bg-bgColor px-8 pt-16 font-mono text-sm font-normal text-textColor antialiased;
+		@apply mx-auto flex h-full max-w-3xl flex-col bg-bgColor px-8 pt-16 text-sm font-normal text-textColor antialiased;
 	}
 }
 @tailwind components;
