@@ -26,7 +26,7 @@ const { frontmatter, headings } = Astro.props;
 					headings.map(({ slug, text }) => (
 						<li class="line-clamp-2 hover:text-accent">
 							<a href={`#${slug}`} aria-label={`Scroll to section: ${text}`}>
-								<span>&#35;</span> {text}
+							 {text}
 							</a>
 						</li>
 					))

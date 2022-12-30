@@ -1,13 +1,30 @@
 ---
 import PageLayout from "@/layouts/Base";
-
+import { Image } from "@astrojs/image/components";
+import fastfoodGif from "../assets/fast-food.gif";
 ---
 
 <PageLayout meta={{ title: "Shorts" }}>
 	<section>
 		<h1 class="title mb-3">Shorts</h1>
-		<p class="mb-4 text-xs">
-			This section contains snippets from my work that I think are entertaining and/or eye-catching!
+		<p class="mb-4">
+			This section contains snippets from my latest work that I think are entertaining and/or eye-catching!
 		</p>
+        
+        <h3 class="title text-lg mb-3">Big 4 Fast Food Outlet Counts Malaysia - Q4 2022</h3>
+        <Image 
+            src={fastfoodGif}
+            alt="Fast Food Malaysia Counts 2022"
+            class="mb-3"
+        />
+
+        <p>
+            This visualisation was particularly eye-opening to me as having lived in the Klang Valley for most my life,
+            it actually wasn't obvious to me that there were so many more KFC's than McDonalds outlets! 
+
+            Interested in the actual data? Check out my blog post <a href="/posts" class="font-bold text-cyan-700">here</a>
+
+        </p>
+
     </section>
 </PageLayout>

@@ -1,60 +1,171 @@
 ---
 layout: "@/layouts/BlogPost"
-title: Testing testing 123!
-publishDate: 13 May 2022
-description: Hello world!!! This is an example blog post showcasing some of the cool stuff Astro Cactus theme can do.
-tags: ["example", "blog", "cool"]
+title: Predicting Traffic with Live Images - A Fullstack Implementation
+publishDate: 29 Nov 2022
+description: A detailed explanation on how we leveraged computer vision and LTA's traffic camera API to predict and visualise traffic congestion on Singaporean highways. Part of coursework for DSA3101 Data Science in Practice
+tags: ["python", "traffic", "singapore", "pytorch", "yolox", "sahi", "opencv", "fastapi"]
 ---
 
 import { Image } from "@astrojs/image/components";
 
-## Hello World
+### Repository Tree & Installation 
 
-Following is an example blog post written in an md file. You can find me @ src/pages/posts/hello-world.md. Here you can add/update/delete details and watch the changes live when running in develop mode.
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=hewliyang.dsa3101-2210-14-lta)
 
-<Image
-	src="https://picsum.photos/id/1025/550/460"
-	alt="A covered up pug in the woods"
-	width={550}
-	height={460}
-/>
-
-## Using some markdown elements
-
-Here we have a simple js code block.
-
-```js
-let string = "JavaScript syntax highlighting";
+Attached below is a simplified version of the folder structure for our <a href="https://github.com/hewliyang/dsa3101-2210-14-lta">repository</a>.
+```
+.
+└── 📁 dsa3101-2210-14-lta/
+    ├── 📁 backend/
+    │   └── .env
+    ├── 📁 frontend/
+    └── docker-compose.yml
 ```
 
-This is styled by Shiki, set via the [config](https://docs.astro.build/en/guides/markdown-content/#syntax-highlighting) for Astro.
+Running the project will require both an LTA DataMall API and Deta key. Place an `.env` file in under the **backend** as shown in the directory tree of the following format:
 
-You can choose your own theme from this [library](https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes), which is currently set to Dracula, in the file `astro.config.mjs`.
+```
+PROJECT_API_KEY = <LTA KEY>
+DB_KEY = <DETA KEY>
+```
 
-Here is a horizontal rule.
+Then launching both the frontend and backend is as simple as running
 
+```
+sudo docker-compose up --d
+```
 ---
 
-Here is a list:
+### Introduction
 
-- Item number 1
-- Item number 2
-- Item number 3
+As part of the national drive towards data-driven solutions, Singapore's **Land Transport Authority (LTA)** publishes a wide variety of land transport related datasets on their open data service called **DataMall** for the use of enterprises, third-party developers, researchers and other members of the public to promote collaboration and co-creation of innovative and inclusive transport solutions [3]. 
 
-And an ordered list:
+In this report, we will explain how we utilised data from the [**DataMall API**](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf) to predict traffic jams on Singaporean expressways. Note that as the nature of this project included collaboration with a frontend team, the features of our application, which also comes in the form of an API, were designed with that in mind. Before proceeding with a formal description, let us outline some of the main goals of this project:
 
-1. James Madison
-2. James Monroe
-3. John Quincy Adams
+* To be able to quantify the level of traffic & predict traffic jams given an image, speed data and traffic incident data
+* To store this data for all cameras across Singapore for time-series analysis
+* To provide this data to the frontend team in a fast and user-friendly manner
 
-Here is a table:
+### API Framework
+  
+<Image src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" width = {200} height = {50} alt="fastAPI logo"
+/>
 
-| Item         | Price | # In stock |
-| ------------ | :---: | ---------: |
-| Juicy Apples | 1.99  |        739 |
-| Bananas      | 1.89  |          6 |
 
-## Tailwind CSS Prose styling
+The framework of our choice is FastAPI because of its:
+* High performance
+* Concise and easy to understand documentation
+* **Auto-generated OpenAPI (Swagger) documentation**
 
-> I'm a simple blockquote.
-> I'm styled by Tailwind CSS prose plugin
+which allows the end-user to experiment and familiarise themselves with the return types & content for each endpoint. The endpoints that we have implemented so far are:
+
+* `api/v1/cam_metadata`
+* `api/v1/cam_images`
+* `api/v1/speed_bands`
+* `api/v1/traffic_incidents`
+* `api/v1/density`
+* `api/v1/image`
+* `api/v1/record`
+* `api/v1/history`
+
+Details regarding each endpoint will be discussed in the following sections.
+
+### Data Cleaning & Feature Engineering
+
+For the most part, image, speed band and traffic data is returned as it is retrieved from LTA's [API](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf) with only some minor modifications to make it's usage more convienient on the client side.
+
+All data retrieved is initially put into a **Pandas DataFrame** object, which after some processing as detailed below, will be converted to a **JSON** array via the method `.to_json()` to be propagated to the client. In the interest of space, please refer to [`main.py`](https://github.com/hewliyang/dsa3101-2210-14-lta/blob/main/backend/main.py) for the exact implementation for each endpoint.
+
+#### Camera Images
+
+```python
+def retrieve_images():
+    df = pd.DataFrame(retrieve(lta_images, header))
+    df["timestamp"] = datetime.datetime.now().replace(microsecond=0,second=0)
+    return df
+```
+
+We simply retrieve image links for all cameras and attach a timestamp to indicate retrieval time for each record. The data is then ready to be retrieved via `api/v1/cam_images`.
+
+#### Speed Bands
+
+```python
+def retrieve_speedbands():
+    df = pd.DataFrame(retrieve(lta_speedbands, header))
+    df[['latitude1', 'longitude1', 'latitude2', 'longitude2']] = df['Location'].str.split(' ', expand = True)
+    df = df.drop('Location', axis=1)
+    df["distance"] = df.apply(lambda x: get_distance(x['latitude1'],x['longitude1'],x['latitude2'],x['longitude2']), axis = 1)
+    df["timestamp"] = datetime.datetime.now().replace(microsecond=0, second=0)
+    return df
+```
+
+The original format returned from LTA has the `(lat1,long1),(lat2,long2)` pairs combined as a string under the `Location` field. We split them into four individual columns for easy access to each value, then drop the original column. We also timestamp each record, and finally calculate the distance of each stretch of road using `distance` from `geopy`. This data is to be output via `api/v1/speed_bands`.
+
+```python
+# calculates the geodesic distance between two points in kilometers (km)
+def get_distance(lat1, long1, lat2, long2):
+    return distance.distance((lat1, long1), (lat2, long2)).km
+```
+
+#### Traffic Incidents
+
+```python
+def retrieve_incidents():
+    df = pd.DataFrame(retrieve(lta_incidents, header))
+    df["timestamp"] = df.apply(lambda x: get_datetime(x["Message"]), axis = 1)
+    df["Message"] = df.apply(lambda x: get_message(x["Message"]), axis = 1)
+    return df
+```
+
+The original format returned from LTA has the time & date appended to the front of the description for each incident under the `Message` field. eg: `2022/10/14 13:55<Incident Description>`. We use the following _regex_ to parse them accordingly.
+
+```python
+def get_datetime(message):
+    s = re.search(r"\(\d+\/\d+\)\d+\:\d+", message).group()
+    dt = datetime.datetime.strptime(s, "(%d/%m)%H:%M")
+    dt = dt.replace(year=datetime.date.today().year)
+    return dt
+
+def get_message(message):
+    s = re.split(r"\(\d+\/\d+\)\d+\:\d+", message)
+    return s[1]
+```
+#### Traffic Density
+
+<p align="center"> <img src="https://raw.githubusercontent.com/hewliyang/st1131-qrcodes/72033abb6425bf0dc1a82ddad91e0e669f86a6bd/flow.svg" style="text-align:center;display:block"/> </p>
+
+With reference to the flowchart above, we obtain traffic density in a series of steps. Given an image and it's corresponding `cameraID`,
+
+1. **Crop** the image into two distinct directions where available.  
+    a. `coords` supplied to the `auto_crop()` function are retrieved from [`metadata/camera_info.txt`](https://github.com/hewliyang/dsa3101-2210-14-lta/blob/main/backend/metadata/camera_info.txt), which can also be accessed via the `api/v1/cam_metadata` endpoint  
+    b. These coordinates when connected form a polygon which outlines the boundary of our crop.  
+    c. Two images are returned for each direction respectively (in numpy array form).  
+    d. In the case where there is no second direction, an empty array is returned. 
+
+```python
+def auto_crop(img, coords):
+    dir1 = crop(img, coords[0])
+    if (coords[1]):
+        dir2 = crop(img, coords[1])
+    else:
+        dir2 = []
+    return [dir1, dir2]
+```
+
+Currently, for all 87 existing cameras (1001-9706), we have already performed the cropping which you can reproduce using **(1)**.  In the event LTA adds new traffic cameras or modifies existing ones, you may need to update the relevant cropping boundaries. Note that this information is accessed under the field `DirCoords` which is array of 2 arrays in the form `[[coords_dir_1], [coords_dir_2]]`. If a second direction does not exist, it is just set as an empty array as a placeholder. To make this clearer, an example of the an image before and after cropping is included below.
+
+<p align="center"> <img src="https://raw.githubusercontent.com/hewliyang/st1131-qrcodes/64e053db1e5c5ee79a3e79030add1cfab4b6ade7/crop.svg" style="text-align:center;display:block"/> </p>
+
+To create your own crops, you may use the cropping tool that we have written @ [`crop.py`](https://github.com/hewliyang/dsa3101-2210-14-lta/blob/main/backend/crop.py). Run the file using `python crop.py`. Begin by specifying the path to the image you would like to crop, eg: `images/1702.jpg`. Click a series of points to form the cropping polygon and hit enter when you are done. A preview of your crop will pop up. If you are satisfied with the result, hit enter again and repeat for the other direction (where applicable).
+
+Once complete, the coordinates of the crop will be printed in your terminal. 
+
+--- 
+
+fill later
+
+### Object Detection Model
+
+<p align="center"> <img src="https://github.com/hewliyang/dsa3101-2210-14-lta/blob/main/backend/assets/sample_1709.png?raw=true" style="text-align:center;display:block"/> </p>
+
+A critical issue with nearly all object detection models tested was that vehicles further away from the camera could not be detected - affecting the accuracy of our count.
