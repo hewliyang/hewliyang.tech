@@ -6,9 +6,6 @@ import sitemap from "@astrojs/sitemap";
 import prefetch from "@astrojs/prefetch";
 
 // https://astro.build/config
-import vercel from "@astrojs/vercel/serverless";
-
-// https://astro.build/config
 export default defineConfig({
   site: "https://www.hewliyang.tech",
   markdown: {
@@ -24,6 +21,4 @@ export default defineConfig({
   }), image({
     serviceEntryPoint: "@astrojs/image/sharp"
   }), sitemap(), prefetch()],
-  output: "server",
-  adapter: vercel()
 });
