@@ -10,7 +10,7 @@ export default defineConfig({
   site: "https://www.hewliyang.tech",
   markdown: {
     shikiConfig: {
-      theme: "one-dark-pro",
+      theme: "dark-plus",
       wrap: true
     }
   },

@@ -2,6 +2,8 @@
 import PageLayout from "@/layouts/Base";
 import { Image } from "@astrojs/image/components";
 import fastfoodGif from "../assets/fast-food.gif";
+import pruViz from "../assets/pru-viz.png";
+
 ---
 
 <PageLayout meta={{ title: "Shorts" }}>
@@ -11,19 +13,30 @@ import fastfoodGif from "../assets/fast-food.gif";
 			This section contains snippets from my latest work that I think are entertaining and/or eye-catching!
 		</p>
         
-        <h3 class="title text-lg mb-3">Big 4 Fast Food Outlet Counts Malaysia - Q4 2022</h3>
+        <h3 class="title text-lg mb-3">Fast Food Chain Locations</h3>
         <Image 
             src={fastfoodGif}
             alt="Fast Food Malaysia Counts 2022"
             class="mb-3"
+            format="webp"
+        />
+
+        <p class="mb-3">
+            Interested in the actual data? Check out my blog post <a href="/posts" target="_blank" class="font-bold text-cyan-500">here</a>.
+            Discuss at <a href="https://www.reddit.com/r/malaysia/comments/zxd3mx/fast_food_outlets_counts_end_2022/" target="_blank" class="font-bold text-red-500">r/Malaysia</a>
+        </p>
+        
+        <h3 class="title text-lg mb-3">Election Dashboard</h3>
+        <Image 
+            src={pruViz}
+            alt="Fast Food Malaysia Counts 2022"
+            class="mb-3"
+            format="webp"
         />
 
         <p>
-            This visualisation was particularly eye-opening to me as having lived in the Klang Valley for most my life,
-            it actually wasn't obvious to me that there were so many more KFC's than McDonalds outlets! 
-
-            Interested in the actual data? Check out my blog post <a href="/posts" class="font-bold text-cyan-700">here</a>
-
+            Built with Streamlit & some Bootstrap components. Features interactive cross-filtering & pagination.
+            Deployed and hosted on <a href="https://pru-viz.streamlit.app" target="_blank" class="font-bold text-cyan-500">Streamlit Cloud</a>
         </p>
 
     </section>
