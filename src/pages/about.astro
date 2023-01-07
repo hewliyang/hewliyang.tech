@@ -48,6 +48,7 @@ const meta = {
 		<p class="mb-4">
 			Hi! 👋 I'm Li Yang a <em class="font-bold">third year</em> undergraduate at the <em class="font-bold">National University of Singapore (NUS)</em>.
 			In addition to my major in Data Science & Analytics, I have also already completed a minor in Computer Science. 
+			<br/> <br/>
 			My interests range widely from data visualisation to machine learning. In my free time, I <em>try</em>
 			to learn fullstack development to bring these concepts to life in the form of web applications.
 		</p>
@@ -56,10 +57,10 @@ const meta = {
 			Skills
 		</h3>
 
-		<h4 class="font-semibold text-lg md:text-xl tracking-tight mb-3 text-black dark:text-white">
+		<h4 class="font-semibold text-md md:text-xl tracking-tight mb-3 text-black dark:text-white">
 			Languages
 		</h4>
-		<div class="flex flex-row space-x-3 mb-2">
+		<div class="flex flex-wrap gap-4 mb-2" >
 			<Icon name="logos:python" height={32} width={32}/>
 			<Icon name="logos:java" height={32} width={32}/>
 			<Icon name="logos:javascript" height={32} width={32}/>
@@ -71,7 +72,7 @@ const meta = {
 			<Icon name="vscode-icons:file-type-rproj" height={32} width={32}/>
 		</div>
 
-		<h4 class="font-semibold text-lg md:text-xl tracking-tight mb-3 text-black dark:text-white">
+		<h4 class="font-semibold text-md md:text-xl tracking-tight mb-3 text-black dark:text-white">
 			Tools
 		</h4>
 
@@ -80,7 +81,7 @@ const meta = {
 			<Icon name="logos:docker" height={32} width={72}/>
 		</div>
 
-		<h4 class="font-semibold text-lg md:text-xl tracking-tight mb-3 text-black dark:text-white">
+		<h4 class="font-semibold text-md md:text-xl tracking-tight mb-3 text-black dark:text-white">
 			Frameworks
 		</h4>
 
@@ -93,11 +94,6 @@ const meta = {
 			<Icon name="logos:pytorch" height={32} width={32}/>
 			<Icon name="logos:react" height={32} width={32}/>
 		</div>
-
-
-
-
-
 
 		<div class="mb-8 leading-6">
 			<h3 class="font-bold text-lg md:text-2xl tracking-tight mb-6 text-black dark:text-white">
@@ -129,25 +125,25 @@ const meta = {
 		<h3 class="font-bold text-lg md:text-2xl tracking-tight mb-6 text-black dark:text-white">
 			This website
 		</h3>
-		<p>
-			This site was built with <em class="font-semibold">Astro</em> on top of the
-			<a class="text-cyan-600 hover:underline" href="https://github.com/chrismwilliams/astro-cactus" target="_blank">Cactus Theme</a>.
-			Hosting & CI/CD is handled by <em class="font-semibold">Vercel</em> and I got the domain name for free through the 
-			<em class="font-semibold">GitHub Education</em> scheme. Images are optimised using <code>@astrojs/image</code> to
-			<code>webp</code>. Blog posts are marked up from <code>.mdx</code> files. Some minor styling changes were made 
-			using <em class="font-semibold">TailwindCSS</em>. This about section is inspired by
-			<a class="text-cyan-600 hover:underline" href="https://leerob.io">leerob.io</a>.
-
-
-
-
-		</p>
-
-
-
-
-
-
-
+		<ul class="space-y-1">
+			<li>
+				Framework: <em class="font-semibold">Astro</em>
+			</li>
+			<li>
+				Theme: <a class="text-cyan-600 hover:underline font-semibold" href="https://github.com/chrismwilliams/astro-cactus" target="_blank">Cactus Theme</a>
+			</li>
+			<li>
+				Hosting & CI/CD : <em class="font-semibold">Vercel</em>
+			</li>
+			<li>
+				Domain: Free thanks to <em class="font-semibold">GitHub Education</em>
+			</li>
+			<li>		
+				Content management: <code>.mdx</code>
+			</li>
+			<li>
+				Styling: <em class="font-semibold">TailwindCSS</em>
+			</li>
+		</ul>
 	</section>
 </PageLayout>
