@@ -2,12 +2,15 @@
 layout: "@/layouts/BlogPost"
 title: pru-viz - An Interactive Dashboard to Visualise Election & Census Data
 publishDate: 28 Dec 2022
-description: A feature rich Streamlit web app utilising open data to create beautiful, informative and interactive plots. 
+description: A feature rich Streamlit web app leveraging open data to create beautiful, informative and interactive plots. 
 tags: ["visualisation", "dashboard"]
 ---
 
 import { Image } from "@astrojs/image/components";
 import pruViz from "../../assets/pru-viz.png";
+import choroplethDiscrete from "../../assets/choropleth-discrete.png"
+import popPyramid from "../../assets/pop-pyramid.png";
+import resultCard from "../../assets/result-card.png";
 
 <Image 
 	src={pruViz}
@@ -16,7 +19,395 @@ import pruViz from "../../assets/pru-viz.png";
 	format="webp"
 />
 
-## Quick Start
+## Live Site
 
-Hello World
+Check out the site at these links! Either will work
 
+- [pru-viz.streamlit.app](https://pru-viz.streamlit.app)
+- [pru.hewliyang.tech](https://pru.hewliyang.tech)
+
+## Introduction
+
+### Why Streamlit?
+When you think of web apps/dashboards, typically one would think that they need to be an 
+expert or at least have experience with web development frameworks like 
+**Next.JS** and **React**. 
+
+Fortunately, for those coming from a *science-ish* **Python** background like myself,
+with **Streamlit**, we are now able to create great looking and interactive
+dashboards easily with our **Python** knowledge! Plus, you have the benefit
+of working with an integrated backend and frontend - meaning we have access
+to **Pandas DataFrame's** and don't have to fiddle with **JSON's**
+
+### Motivation
+
+While browsing through existing dashboards for the recently concluded
+**15th Malaysian General Election**, I found most lacking in terms of
+*granularity* and *customisability* so I decided to take this chance to build my own.
+
+In addition, it was around the same time that I discovered that the
+relevant data was available from [Thevesh](https://github.com/Thevesh)
+and [DOSM](https://github.com/dosm-malaysia).
+
+### Outline
+
+In the following sections, I will describe how I came up with *some* of the more complex charts
+made with **ECharts**. If you're interested in in the remaining charts & how all
+the moving parts are put together, please check out the [GitHub](https://www.github.com/hewliyang/pru-viz)
+ repo.
+
+Specifically you're going to want to check out the following files:
+* `GE15.py`
+* `pages/2_Census.py`
+* `utils/cards.py`
+* `utils/charts.py`
+* `utils/maps.py`
+
+### Discrete Map (Choropleth)
+
+This chart will be used to plot the winning parties for each
+constituency. 
+
+In total, there are 12 unique winning
+parties which is a little too many colors for me on a map.
+
+So, we're going to exclude parties than won in fewer than **3** constituencies
+and group them under `OTHER`.
+
+The color **HEX** codes are taken from the official elections comission
+[website](https://dashboard.spr.gov.my/#!/home) and are saved in `utils/constant.py`
+
+**ECharts** requires us to provide the data in a specific way,
+so the data prep work might be a little unfamiliar to those that have
+not use any **JavaScript** based plotting libraries.
+
+Have a look at the examples on the [**ECharts**](https://echarts.apache.org/examples/en/editor.html?c=map-usa) webpage
+
+In particular, here is what we need to note:
+1. The data has to be provided in the following format
+
+```json
+data : [
+    {name: "", value:0},
+    {name: "", value:1},
+    ...
+]
+```
+
+2. `visualMap` is the property that maps a color to each region of the map. We'll need to give it the **constituency name (`parlimen`) to color** mapping.
+
+```python
+from utils.constants import alias_to_id_color, id_to_alias_color
+
+# find winners
+winners = candidate_df[candidate_df.result == 1][["parlimen", "party_short"]]
+# we exclude parties that won < 3 seats
+include = {"BN", "PH", "PN", "GPS", "GRS", "PAS", "DAP", "WARISAN"}
+replace_with = "OTHER"
+
+winners_mini = winners.copy()
+winners_mini["party_short"] = winners_mini["party_short"].where(winners_mini["party_short"].isin(include), replace_with)
+
+winners_mini = winners_mini.assign(
+party_id = lambda df_: df_["party_short"].map(lambda x: alias_to_id_color[x]["id"]),
+color = lambda df_: df_["party_short"].map(lambda x: alias_to_id_color[x]["color"])
+)
+
+# get series_data
+# for map plotting [{} , ..., {parlimen: party_id}]
+for_map = winners_mini.copy()[["parlimen", "party_id"]]
+for_map.rename(columns={"party_id":"value", "parlimen":"name"}, inplace=True)
+series_data = for_map.to_dict(orient="records")
+
+# for visualMap - categories
+categories = [int(x) for x in for_map.value.unique()]
+# for visualMap - color
+color = [id_to_alias_color[id]["color"] for id in categories]
+```
+
+Next are to prepare the tooltips. We want to display the constituency name upon hovering
+over it. We are going to pass this as 
+**JavaScript** code to the `options` dictionary later on.
+
+```javascript
+function displayName(e) {
+    return e.seriesName + "<br/>" + e.name + ": " + e.value;
+}
+```
+
+We obviously cannot use **JavaScript** syntax in Python, so we'll need to minify it first.
+Any minifier will work such as [minifier.org](https://www.minifier.org/). It'll look like this afterwards
+
+```javascript
+function displayName(e){return e.seriesName+"<br/>"+e.name+": "+e.value}
+```
+
+Then we save this as a string by wrapping the entire line in parentheses, and load it back into our code.
+
+```python
+from streamlit_echarts import JsCode
+from utils.constants import tooltip_result_jscode, vmap_jscode
+
+tooltip_formatter = JsCode(tooltip_result_jscode).js_code
+vmap_formatter = JsCode(vmap_jscode).js_code
+```
+
+Finally to plot a map, first we create a **Map** object using a `.geojson` file containing
+information of the relevant geographical boundaries.
+
+```python
+from streamlit_echarts import Map
+map = Map(map_name="Malaysia",geo_json=geojson)
+```
+
+Now is the time to put everything to use. We build the **options** dictionary as follows:
+
+```python
+options = {
+        "title": {
+            "text": "GE15 Results by Parliament (2022)",
+            "subtext": "Data from Thevesh & DOSM \n OTHER (< 3 seats): PBM, KDM, BEBAS, MUDA",
+            "sublink": "https://github.com/dosm-malaysia/data-open",
+            "left": "right",
+        },
+        "tooltip": {
+            "trigger": "item",
+            "showDelay": 0,
+            "transitionDuration": 0.2,
+            "formatter": tooltip_formatter,
+        },
+        "visualMap": {
+            "left": "right",
+            "right": 0,
+            "type": "piecewise",
+            "categories": categories,
+            "inRange": {
+                "color": color 
+            },
+            "formatter": vmap_formatter,
+        },
+        "toolbox": {
+            "show": True,
+            "left": "left",
+            "top": "top",
+            "feature": {
+                "dataView": {"readOnly": False},
+                "restore": {},
+                "saveAsImage": {},
+            },
+        },
+        "series": [
+            {
+                "name": "Parliamentary Results",
+                "type": "map",
+                "roam": True,
+                "map": "Malaysia",
+                "emphasis": {"label": {"show": True}},
+                "data": series_data
+            }
+        ],
+    }
+```
+
+Finally, we display the chart with **map** and **options**
+
+```python
+from streamlit_echarts import st_echarts
+
+st_echarts(options=options, map=map)
+```
+<Image 
+	src={choroplethDiscrete}
+	alt="Results Choropleth"
+	class="mb-3"
+	format="webp"
+/>
+
+
+### Population Pyramid (Bar)
+
+Large chunk of code incoming! Some things to pay attention to:
+
+1. We are plotting 2 horizontal bar charts. One has to be with negative values so the bars go left!
+2. To resolve the negative values we can just apply `Math.abs()` in the tooltip formatters
+3. Male, female legend icons are passed as **SVG** paths
+
+Credits to **lionants02** on StackOverflow for this solution! Check out his [gist](https://gist.github.com/lionants02/38981b2335999f43d9a529186601f100)
+
+```python
+# data prep
+
+df = df.groupby(["age_group", "sex"]).sum().reset_index().fillna(0)
+
+y = df["age_group"].unique()
+x1 = df.query('sex == "male"').groupby("age_group").sum()["count"] * -1
+x2 = df.query('sex == "female"').groupby("age_group").sum()["count"] 
+```
+
+```python
+option = {
+	"tooltip": {
+		"trigger": 'item',
+		"axisPointer": {
+			"type": 'shadow'
+		},
+		"formatter": JsCode('function (e) {return `<b>${e.seriesName}</b>`+"<br/>"+e.name+": "+ Math.abs(e.value).toLocaleString("en-US")};').js_code,
+	},
+	"title": {
+		"text": "Voter Age Pyramid",
+		"subtext": f"{data['title']}",
+		"left": "right",
+	},
+	
+	"legend": {
+		"itemWidth": 30,
+		"itemHeight": 30,
+		"data": [
+			{
+				"name": 'Male',
+				"icon": "path://M12 2a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m-1.5 5h3a2 2 0 0 1 2 2v5.5H14V22h-4v-7.5H8.5V9a2 2 0 0 1 2-2Z",
+			},
+			{
+				"name": 'Female',
+				"icon": "path://M12 2a2 2 0 0 1 2 2a2 2 0 0 1-2 2a2 2 0 0 1-2-2a2 2 0 0 1 2-2m-1.5 20v-6h-3l2.59-7.59C10.34 7.59 11.1 7 12 7c.9 0 1.66.59 1.91 1.41L16.5 16h-3v6h-3Z",
+			}
+		]
+	},
+	"grid": {
+		"left": '2%',
+		"right": '5%',
+		"bottom": '5%',
+		"containLabel": True
+	},
+	"xAxis": [
+		{
+			"type": 'value',
+			"show": True,
+			"axisLabel": {
+			"formatter": JsCode('function (params) {return Math.abs(params);}').js_code
+			}
+		}
+	],
+	"yAxis": [
+		{
+			"type": 'category',
+			"axisTick": {
+				"show": False
+			},
+			"nameLocation": "middle",
+			"nameTextStyle": {
+				"fontStyle":'oblique',
+				"fontWeight":'bold'
+				},
+			"data": list(data["y"])
+		}
+	],
+	"series": [
+		{
+			"name": 'Female',
+			"type": 'bar',
+			"color": '#ff007f',
+			"stack": 'Total',
+			"label": {
+				"show": False,
+				"position": 'right'
+			},
+			"emphasis": {
+				"focus": 'none'
+			},
+			"data": list(data["x2"])
+		},
+		{
+			"name": 'Male',
+			"type": 'bar',
+			"color": '#0000ff',
+			"stack": 'Total',
+			"label": {
+				"show": False,
+				"position": 'left',
+				"formatter": JsCode('function (params) {return Math.abs(params.value);}').js_code
+			},
+			"emphasis": {
+				"focus": 'none'
+			},
+			"data": list(data["x1"])
+		}
+	]
+}
+```
+
+<Image 
+	src={popPyramid}
+	alt="Population Pyramid in ECharts"
+	class="mb-3"
+	format="webp"
+/>
+
+### Result (Card)
+
+Each card displays the following information:
+1. Display name
+2. Age, Sex, Race
+3. Full party name and its alias
+4. Result - Votes [colors: win-green, lose-red, lost deposit-yellow]
+
+<Image 
+	src={resultCard}
+	alt="Bootstrap cards"
+	class="mb-3 mx-auto"
+	format="webp"
+/>
+
+```python
+def result_card(
+    candidate_name: str,
+    party_name: str,
+    vote_count: int,
+    result: bool,
+    result_desc: str,
+    candidate_age: int,
+    candidate_sex: str,
+    candidate_race: str 
+    ) -> str: 
+    lost_deposit = True if result_desc == "lost_deposit" else False
+    return f"""
+    <div class="card text-center">
+        <div class="card-body">
+            <h5 class="card-title mb-0 font-weight-bold">{candidate_name}</h5>
+            <h6 class="card-subtitle mb-1 text-muted">{int(candidate_age) if not np.isnan(candidate_age) else "Unknown"} {candidate_sex.capitalize()} {candidate_race.capitalize()}</h6>
+            <p class="card-text">{party_name}</p>
+            <p class="card-text font-weight-bold {"text-success" if result else "text-warning" if lost_deposit else "text-danger"}">{"WON" if result else "LOST DEPOSIT" if lost_deposit else "LOST"} - {vote_count}</p>
+        </div>
+    </div>
+    """
+```
+
+The HTML uses **Bootstrap** classes so we need to inject their **CSS** file somewhere in our app.
+The styles file can be loaded straight from a CDN. Instructions available on the [Bootstrap webpage](https://getbootstrap.com/docs/4.3/getting-started/download/)
+
+Finally, the cards can be displayed using 
+
+```python
+st.markdown(result_card(.....), unsafe_allow_html=True)
+```
+
+### Limitations
+
+The layout of this app doesn't work very well on smaller screens
+& mobile devices. Streamlit projects in general seem responsive
+enough as long as you structure them in a *narrow* fashion,
+which is not what I did!
+
+### Final Words
+
+I ended up learning many new concepts and frameworks in the process of 
+building **pru-viz**. It was also a great opportunity
+to practice my data-wrangling skills. 
+
+A quick summary of everything I used/learnt through this project.
+
+* Languages: **Python**, **Cython**, **JavaScript**, **HTML**, **CSS**
+* Frameworks: **Streamlit**
+* Plotting Libraries: **ECharts**, **Plotly**, **Altair**, **Matplotlib**
+* Data: **JSON**, **GeoJSON**, **Pandas**, **GeoPandas**
+* Development: **Cloud Deployment**, **GitHub Pages**, **Custom Domain (DNS)**

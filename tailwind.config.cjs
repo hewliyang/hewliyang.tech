@@ -3,7 +3,7 @@ const plugin = require("tailwindcss/plugin");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-	content: ["./src/**/*.{astro,html,js,jsx,md,svelte,ts,tsx,vue}"],
+	content: ["./src/**/*.{astro,html,js,jsx,mdx,svelte,ts,tsx,vue}"],
 	darkMode: "class",
 	corePlugins: {
 		// disable aspect ratio as per docs -> @tailwindcss/aspect-ratio
