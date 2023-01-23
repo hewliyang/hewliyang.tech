@@ -1,0 +1,210 @@
+---
+layout: "@/layouts/BlogPost"
+title: Winning NUS Hack&Roll 2023
+publishDate: 19 Jan 2023
+description: How we built NUS Sentiment in 24 hours and were selected as winners of Singapore's largest student run hackathon!
+tags: ["visualisation", "dashboard", "nlp", "huggingface", "sentiment"]
+---
+
+import { Image } from "@astrojs/image/components";
+import nusSentiment from "../../assets/nus-sentiment.png";
+
+<Image
+	src={nusSentiment}
+	alt="NUS Sentiment Main Page: Query: CS2106"
+	class="mb-3 rounded-3xl"
+	format="webp"
+/>
+
+## Preface
+
+**NUS Sentiment** was built for [NUS Hack&Roll 2023](https://hacknroll.nushackers.org/) in 24 hours with my friends
+Jake, Utkarsh and Minh Tuan.
+
+✔️ Our project was awarded the **Coreteam's Best Roll** prize after ~2 hours of judging by ~12 judges from **Indeed,
+Goldman Sachs, Visa, TikTok, Google, Meta** and more.
+
+Links:
+- Submitted write-up is available at [Devpost](https://devpost.com/software/nus-sentiment)
+- Web app hosted on [Streamlit Cloud](https://nus-sentiment.streamlit.app/)
+- Source code on [GitHub](https://github.com/nus-sentiment/nus-sentiment)
+
+## Introduction
+
+**NUS Sentiment** essentially does the following:
+1. Scrapes [r/NUS](https://www.reddit.com/r/nus/) based on a keyword that a user inputs.
+2. Passes the text body from these posts into a NLP pipeline
+3. Push the results to a vector database, where they can be retrieved via natural language query.
+
+Our projects serves to solve two main issues we have with Reddit search:
+- Bad + heavily syntactic search
+- Too many posts to parse through manually to get insight
+
+**My role**: I led the project from ideation -> development and worked on both the frontend and backend.
+
+## NLP Pipeline
+
+```python
+import torch
+from transformers import (AutoModelForSequenceClassification, AutoTokenizer, pipeline)
+
+MODEL_ID = "cardiffnlp/twitter-roberta-base-sentiment"
+
+def download_model(model_id: str = MODEL_ID):
+    device = torch.cuda.current_device() if torch.cuda.is_available() else None
+
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_id,
+        num_labels=3 # get positive, neutral, negative labels
+    )
+    
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+    nlp = pipeline(
+        "sentiment-analysis",
+        model=model,
+        tokenizer=tokenizer,
+        device=device
+    )
+    return model, tokenizer, nlp
+```
+
+Nothing special here, we simply pull a pre-trained **RoBERTa** model from **Hugging Face**. 
+
+`nlp` : [[posts...]] -> [[(pos/neg/neu, conf_score)...]]
+
+In addition we pass some extra configuration settings to truncate super lengthy posts to 512 words.
+
+```python
+tokenizer_kwargs = {"padding": True, "truncation": True, "max_length": 512}
+sentiments = nlp(posts, **tokenizer_kwargs)
+```
+
+We did some extra pre-processing with regex on posts beforehand, but to keep this post short we will omit the 
+details.
+
+## Charts
+
+**Time Series Line + Scatter**
+
+```python
+import altair as alt
+
+def line_and_scatter(data: pd.DataFrame, keyword: str):
+    chart = alt.Chart(data, title=f"Sentiment over time for:  {keyword}")
+
+    line = chart.mark_line(tooltip=True).encode(
+        x=alt.X("created_at:T", timeUnit="yearmonthdate", title="time"),
+        y=alt.Y(
+            "mean(sentiment):Q", title="sentiment", scale=alt.Scale(domain=[-1,1])
+        ),
+        color=alt.Color(value="#FF4B4B")
+    )
+
+    scatter = chart.mark_point(size=75, filled=True).encode(
+        x=alt.X("created_at:T", timeUnit="yearmonthdate", title="time"),
+        y=alt.Y("sentiment:Q", title="sentiment"),
+        tooltip=alt.Tooltip(["created_at", "sentiment", "post"]),
+        href="url"
+    )
+
+    return line + scatter
+```
+
+**WordCloud**
+
+We construct the word cloud by first tokenizing the posts and removing stopwords.
+
+```python
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+
+def wordcloud_chart(data: pd.DataFrame):
+    all_post_list = data['post'].sum().split()
+    pos_word_list = ''
+    neu_word_list = ''
+    neg_word_list = ''
+
+    for word in all_post_list:               
+        testimonial = TextBlob(word + ' ')
+        if testimonial.sentiment.polarity >= 0.5:
+            pos_word_list += (word + ' ')
+        elif testimonial.sentiment.polarity <= -0.5:
+            neg_word_list += (word + ' ')
+        else:
+            neu_word_list += (word + ' ')
+    stopwords = set(STOPWORDS)
+
+    stopwords.update(['a', 'b', 'c', 'u', 'C', 'want', 'know', 'take', 'think', 's', 'took', 'one', 'will', 'prof', 'lot', 'much', 'need', 'Thank', 'mod', 't', 'still', 'even', 'really'])
+
+    lst_title_words = [[pos_word_list, "Positive sentiment"], [neu_word_list, "Neutral sentiment"], [neg_word_list, "Negative sentiment"]]
+    figures = []
+    count = 0
+    for i in lst_title_words:
+        fig, ax = plt.subplots(figsize=(15,5))
+        ax.set_facecolor('black')
+        wc = WordCloud(stopwords=stopwords, background_color="black", max_words=20)
+        wc.generate(i[0])
+        plt.imshow(wc.recolor(color_func=grey_color_func, random_state=3), interpolation='bilinear')
+        plt.axis("off")
+        plt.title(i[1],fontdict = {'fontsize' : 30, 'color': 'white'})
+        plt.rcParams['axes.facecolor'] = 'black'
+        plt.rcParams['savefig.facecolor'] = 'black'
+        plt.show()
+        figures.append(fig)
+        count += 1
+    return figures
+```
+## Database Integrations
+
+**Pinecone (Vector)**
+
+This serves to power our semantic search engine. Posts are embedded to vectors using
+`sentence-transformers/all-MiniLM-L6-v2` from **SentenceTransformer** before being pushed to **Pinecone**.
+
+Now, users are able to make natural language queries like *Should I stay at RVRC* instead of simply searching
+by keyword, ie: *RVRC*. Top **K** results are returns based on **cosine similarity** of the embeddings.
+
+
+```python
+import pinecone
+from utils.semantics import download_sentence_embedder
+
+retriever = download_sentence_embedder()
+index = pinecone.Index(index_name)
+
+## storage
+
+def push_to_pinecone(df: pd.DataFrame, retriever, index):
+    batch_size=64
+
+    for i in stqdm(range(0, len(df), batch_size)):
+        # find end of batch
+        i_end = min(i+batch_size, len(df))
+        # extract batch
+        batch = df.iloc[i:i_end]
+        # generate embeddings for batch
+        emb = retriever.encode(batch["post"].tolist()).tolist()
+        # get metadata
+        meta = batch.to_dict(orient="records")
+        # create unique IDs
+        ids = list(batch["id"])
+        # create list to upsert
+        to_upsert = list(zip(ids, emb, meta))
+        # upsert to pinecone
+        _ = index.upsert(vectors=to_upsert)
+    
+    return index.describe_index_stats()
+
+## retrieval
+
+# generate dense vector embeddings for the query
+xq = retriever.encode(query).tolist()
+# query pinecone
+result = index.query(xq, top_k=top_k_matches, include_metadata=True)
+```
+
+## Conclusion
+
+This was the first hackathon I've attended in person (yes, COVID). It was pretty grueling having to 
+present our projects to so many judges after barely sleeping, but really fun at the same time!

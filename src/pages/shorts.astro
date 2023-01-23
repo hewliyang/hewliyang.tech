@@ -3,6 +3,7 @@ import PageLayout from "@/layouts/Base";
 import { Image } from "@astrojs/image/components";
 import fastfoodGif from "../assets/fast-food.gif";
 import pruViz from "../assets/pru-viz.png";
+import nusSentiment from "../assets/nus-sentiment.png";
 
 ---
 
@@ -17,7 +18,7 @@ import pruViz from "../assets/pru-viz.png";
         <Image 
             src={fastfoodGif}
             alt="Fast Food Malaysia Counts 2022"
-            class="mb-3"
+            class="mb-3 rounded-2xl"
             format="webp"
         />
 
@@ -30,13 +31,28 @@ import pruViz from "../assets/pru-viz.png";
         <Image 
             src={pruViz}
             alt="Fast Food Malaysia Counts 2022"
-            class="mb-3"
+            class="mb-3 rounded-2xl"
+            format="webp"
+        />
+
+        <p class="mb-3">
+            Built with Streamlit & some Bootstrap components. Features interactive cross-filtering & pagination.
+            Deployed and hosted on <a href="https://pru-viz.streamlit.app" target="_blank" class="font-bold text-cyan-500">Streamlit Cloud</a>
+        </p>
+
+        <h3 class="title text-lg mb-3">NUS Sentiment</h3>
+        <Image 
+            src={nusSentiment}
+            alt="NUS Sentiment Homepage"
+            class="mb-3 rounded-2xl"
             format="webp"
         />
 
         <p>
-            Built with Streamlit & some Bootstrap components. Features interactive cross-filtering & pagination.
-            Deployed and hosted on <a href="https://pru-viz.streamlit.app" target="_blank" class="font-bold text-cyan-500">Streamlit Cloud</a>
+            Sentiment analysis & mining web app built in 24 hours for <b>NUS Hack&Roll 2023</b> with my friends Jake, Utkarsh and Minh Tuan.
+            Deployed and hosted <a href="https://nus-sentiment.streamlit.app" target="_blank" class="font-bold text-cyan-500">here</a>.
+            Scrapes <a href="https://www.reddit.com/r/nus/" target="_blank" class="font-bold text-red-500">r/NUS</a>
+            to facilitate information gathering on modules, professors, and all things <b>NUS</b>
         </p>
 
     </section>
