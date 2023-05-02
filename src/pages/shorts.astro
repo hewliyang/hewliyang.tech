@@ -4,6 +4,7 @@ import { Image } from "@astrojs/image/components";
 import fastfoodGif from "../assets/fast-food.gif";
 import pruViz from "../assets/pru-viz.png";
 import nusSentiment from "../assets/nus-sentiment.png";
+import nusBetterNextBus from "../assets/nus-betternextbus.gif";
 
 ---
 
@@ -14,49 +15,63 @@ import nusSentiment from "../assets/nus-sentiment.png";
 			This section contains snippets from my latest work that I think are entertaining and/or eye-catching!
 		</p>
         
-        <h3 class="title text-lg mb-1">I'm currently working on <a class="text-cyan-500 underline hover:text-red-500" href="https://nus-betternextbus.vercel.app">NUS BetterNextBUS</a></h3>
-        <p class="text-sm font font-semibold mb-3">A perfomant alternative to NUS's inhouse NextBus mobile app to help students & staff get their bus routes & timings faster!</p>
+        <div class="flex flex-col gap-y-5">
+            <div class="flex flex-col items-center p-6  bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                <h3 class="title text-lg mb-1">I currently maintain <a class="text-cyan-500 underline hover:text-red-500" href="https://nextbus.me" target="_blank">NUS BetterNextBUS</a></h3>
+                <Image
+                    src={nusBetterNextBus}
+                    alt="NUS BetterNextBus"
+                    class="my-3 rounded-2xl"
+                    width={256}
+                />
+                <p class="text-sm font font-semibold mb-3">A perfomant alternative to NUS's inhouse NextBus mobile app to help students & staff get their bus routes & timings faster!</p>
+            </div>
 
-        <h3 class="title text-lg mb-3">Fast Food Chain Locations</h3>
-        <Image 
-            src={fastfoodGif}
-            alt="Fast Food Malaysia Counts 2022"
-            class="mb-3 rounded-2xl"
-            format="webp"
-        />
+            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                <h3 class="title text-lg mb-3">Fast Food Chain Locations</h3>
+                <Image 
+                    src={fastfoodGif}
+                    alt="Fast Food Malaysia Counts 2022"
+                    class="mb-3 rounded-2xl"
+                    format="webp"
+                />
+                <p class="mb-3">
+                    Interested in the actual data? Check out my blog post <a href="/posts/fast-food" target="_blank" class="font-bold text-cyan-500">here</a>.
+                    Discuss at <a href="https://www.reddit.com/r/malaysia/comments/zxd3mx/fast_food_outlets_counts_end_2022/" target="_blank" class="font-bold text-red-500">r/Malaysia</a>
+                </p>
+            </div>
 
-        <p class="mb-3">
-            Interested in the actual data? Check out my blog post <a href="/posts/fast-food" target="_blank" class="font-bold text-cyan-500">here</a>.
-            Discuss at <a href="https://www.reddit.com/r/malaysia/comments/zxd3mx/fast_food_outlets_counts_end_2022/" target="_blank" class="font-bold text-red-500">r/Malaysia</a>
-        </p>
-        
-        <h3 class="title text-lg mb-3">Election Dashboard</h3>
-        <Image 
-            src={pruViz}
-            alt="Fast Food Malaysia Counts 2022"
-            class="mb-3 rounded-2xl"
-            format="webp"
-        />
+            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                <h3 class="title text-lg mb-3">Election Dashboard</h3>
+                <Image 
+                    src={pruViz}
+                    alt="Fast Food Malaysia Counts 2022"
+                    class="mb-3 rounded-2xl"
+                    format="webp"
+                />
 
-        <p class="mb-3">
-            Built with Streamlit & some Bootstrap components. Features interactive cross-filtering & pagination.
-            Deployed and hosted on <a href="https://pru-viz.streamlit.app" target="_blank" class="font-bold text-cyan-500">Streamlit Cloud</a>
-        </p>
+                <p class="mb-3">
+                    Built with Streamlit & some Bootstrap components. Features interactive cross-filtering & pagination.
+                    Deployed and hosted on <a href="https://pru-viz.streamlit.app" target="_blank" class="font-bold text-cyan-500">Streamlit Cloud</a>
+                </p>
+            </div>
 
-        <h3 class="title text-lg mb-3">NUS Sentiment</h3>
-        <Image 
-            src={nusSentiment}
-            alt="NUS Sentiment Homepage"
-            class="mb-3 rounded-2xl"
-            format="webp"
-        />
+            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                <h3 class="title text-lg mb-3">NUS Sentiment</h3>
+                <Image 
+                    src={nusSentiment}
+                    alt="NUS Sentiment Homepage"
+                    class="mb-3 rounded-2xl"
+                    format="webp"
+                />
 
-        <p>
-            Sentiment analysis & mining web app built in 24 hours for <b>NUS Hack&Roll 2023</b> with my friends Jake, Utkarsh and Minh Tuan.
-            Deployed and hosted <a href="https://nus-sentiment.streamlit.app" target="_blank" class="font-bold text-cyan-500">here</a>.
-            Scrapes <a href="https://www.reddit.com/r/nus/" target="_blank" class="font-bold text-red-500">r/NUS</a>
-            to facilitate information gathering on modules, professors, and all things <b>NUS</b>
-        </p>
-
+                <p>
+                    Sentiment analysis & mining web app built in 24 hours for <b>NUS Hack&Roll 2023</b> with my friends Jake, Utkarsh and Minh Tuan.
+                    Deployed and hosted <a href="https://nus-sentiment.streamlit.app" target="_blank" class="font-bold text-cyan-500">here</a>.
+                    Scrapes <a href="https://www.reddit.com/r/nus/" target="_blank" class="font-bold text-red-500">r/NUS</a>
+                    to facilitate information gathering on modules, professors, and all things <b>NUS</b>
+                </p>
+            </div>
+        </div>
     </section>
 </PageLayout>
