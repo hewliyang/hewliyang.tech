@@ -4,7 +4,7 @@ import { Image } from "@astrojs/image/components";
 import fastfoodGif from "../assets/fast-food.gif";
 import pruViz from "../assets/pru-viz.png";
 import nusSentiment from "../assets/nus-sentiment.png";
-import nusBetterNextBus from "../assets/nus-betternextbus.gif";
+import nusBetterNextBus from "../assets/nnbus.gif";
 
 ---
 
@@ -25,9 +25,13 @@ import nusBetterNextBus from "../assets/nus-betternextbus.gif";
                     width={256}
                 />
                 <p class="text-sm font font-semibold mb-3">A perfomant alternative to NUS's inhouse NextBus mobile app to help students & staff get their bus routes & timings faster!</p>
+                <a href="https://www.nextbus.me" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                    Try it yourself!
+                    <svg aria-hidden="true" class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </a>
             </div>
 
-            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+            <div class="flex flex-col items-center p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                 <h3 class="title text-lg mb-3">Fast Food Chain Locations</h3>
                 <Image 
                     src={fastfoodGif}
@@ -39,9 +43,13 @@ import nusBetterNextBus from "../assets/nus-betternextbus.gif";
                     Interested in the actual data? Check out my blog post <a href="/posts/fast-food" target="_blank" class="font-bold text-cyan-500">here</a>.
                     Discuss at <a href="https://www.reddit.com/r/malaysia/comments/zxd3mx/fast_food_outlets_counts_end_2022/" target="_blank" class="font-bold text-red-500">r/Malaysia</a>
                 </p>
+                <a href="/posts/fast-food" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                    Read more
+                    <svg aria-hidden="true" class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </a>
             </div>
 
-            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+            <div class="flex flex-col items-center p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                 <h3 class="title text-lg mb-3">Election Dashboard</h3>
                 <Image 
                     src={pruViz}
@@ -54,9 +62,19 @@ import nusBetterNextBus from "../assets/nus-betternextbus.gif";
                     Built with Streamlit & some Bootstrap components. Features interactive cross-filtering & pagination.
                     Deployed and hosted on <a href="https://pru-viz.streamlit.app" target="_blank" class="font-bold text-cyan-500">Streamlit Cloud</a>
                 </p>
+                <div>
+                    <a href="/posts/election-dashboard" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        Read more
+                        <svg aria-hidden="true" class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </a>
+                    <a href="https://pru-viz.streamlit.app/" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                        Try it yourself!
+                        <svg aria-hidden="true" class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </a>
+                </div>
             </div>
 
-            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+            <div class="flex flex-col items-center p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                 <h3 class="title text-lg mb-3">NUS Sentiment</h3>
                 <Image 
                     src={nusSentiment}
@@ -65,12 +83,22 @@ import nusBetterNextBus from "../assets/nus-betternextbus.gif";
                     format="webp"
                 />
 
-                <p>
+                <p class="mb-3">
                     Sentiment analysis & mining web app built in 24 hours for <b>NUS Hack&Roll 2023</b> with my friends Jake, Utkarsh and Minh Tuan.
                     Deployed and hosted <a href="https://nus-sentiment.streamlit.app" target="_blank" class="font-bold text-cyan-500">here</a>.
                     Scrapes <a href="https://www.reddit.com/r/nus/" target="_blank" class="font-bold text-red-500">r/NUS</a>
                     to facilitate information gathering on modules, professors, and all things <b>NUS</b>
                 </p>
+                <div>
+                    <a href="/posts/nus-sentiment" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        Read more
+                        <svg aria-hidden="true" class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </a>
+                    <a href="https://nus-sentiment.streamlit.app/" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                        Try it yourself!
+                        <svg aria-hidden="true" class="w-4 h-4 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
