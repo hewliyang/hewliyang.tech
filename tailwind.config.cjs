@@ -29,7 +29,6 @@ module.exports = {
 			fontFamily: {
 				// Add any custom fonts here
 				sans: ["Inter", ...fontFamily.sans],
-				serif: [...fontFamily.serif],
 			},
 			transitionProperty: {
 				height: "height",

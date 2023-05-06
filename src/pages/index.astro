@@ -16,12 +16,12 @@ const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS);
 		<p class="mb-4 text-lg">
 			I’m Li Yang, a penultimate year <b>Data Science</b> undergraduate at the <b>National University of Singapore</b>. 
 			I enjoy building data-driven applications of all kinds using the latest and greatest frameworks. My recent interests are in
-			<code class="text-sm">NLP</code>, <code class="text-sm">GIS</code> and <code class="text-sm">web development</code>!
+			<code>NLP</code>, <code>GIS</code> and <code>web development</code>!
 		</p>
 		<SocialList />
 	</section>
 	<section aria-label="Blog post list" class="mt-8">
-		<h2 class="title mb-4 text-xl">Posts</h2>
+		<h2 class="title mb-4 text-md">Posts</h2>
 		<ul class="space-y-4 sm:space-y-2">
 			{
 				allPostsByDate.map((p) => (
