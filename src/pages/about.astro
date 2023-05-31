@@ -1,7 +1,5 @@
 ---
 import PageLayout from "@/layouts/Base";
-import { Image } from "@astrojs/image/components";
-import profilePic from "../assets/profile-pic.png";
 import { Icon } from "astro-icon";
  
 const meta = {
@@ -12,7 +10,7 @@ const meta = {
 
 <PageLayout meta={meta}>
 
-	<section class="flex flex-col justify-center items-start max-w-2xl border-gray-200 dark:border-gray-700 mx-auto pb-16">
+	<section class="flex flex-col justify-center items-start max-w-2xl border-gray-200 dark:border-gray-700 pb-16">
 		<div class="flex flex-col-reverse sm:flex-row items-start">
 			<div class="flex flex-col pr-8">
 			<h1 class="font-bold text-xl md:text-3xl tracking-tight mb-1 text-black dark:text-white">
@@ -31,14 +29,6 @@ const meta = {
 			</p>
 			</div>
 			<div class="w-[120px] sm:w-[178px] relative mb-8 sm:mb-0 mr-auto">
-			<Image
-				alt="Hew Li Yang"
-				height={178}
-				width={178}
-				src={ profilePic }
-				format="webp"
-				class="rounded-3xl"
-			/>
 			</div>
 		</div>
 
