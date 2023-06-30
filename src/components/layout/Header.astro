@@ -2,6 +2,7 @@
 import ThemeToggle from "../ThemeToggle.astro";
 
 const url = new URL(Astro.request.url);
+const currentPath = Astro.url.pathname;
 
 const menuLinks = [
 	{
@@ -10,15 +11,15 @@ const menuLinks = [
 	},
 	{
 		title: "About",
-		path: "/about",
+		path: "/about/",
 	},
 	{
 		title: "Blog",
-		path: "/posts",
+		path: "/posts/",
 	},
 	{
 		title: "Shorts",
-		path: "/shorts",
+		path: "/shorts/",
 	}
 ];
 ---
@@ -59,7 +60,7 @@ const menuLinks = [
 				menuLinks.map((link) => (
 					<a
 						href={link.path}
-						class={`py-4 px-4 sm:py-0 sm:hover:underline rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-all ${url.pathname === link.path ? "bg-gray-100 dark:bg-gray-700" : ""}`}
+						class={`py-4 px-4 sm:py-0 sm:hover:underline rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-all ${currentPath === link.path ? "bg-gray-100 dark:bg-gray-700" : ""}`}
 						aria-current={url.pathname === link.path ? "page" : false}
 						rel="prefetch"
 					>
