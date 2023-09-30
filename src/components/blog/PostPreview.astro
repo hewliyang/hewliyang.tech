@@ -19,6 +19,6 @@ const postDate = getFormattedDate(date, { month: "short" });
 	<a href={post.url} class="inline-block line-clamp-1 text-lg font-semibold" rel="prefetch">
 		{post.frontmatter.title}
 	</a>
-	<time datetime={datetime} class="min-w-[120px] text-gray-500 text-xs mb-5">{postDate}</time>
+	<time datetime={datetime} class="block min-w-[120px] text-gray-500 text-xs">{postDate}</time>
 </Element>
 {withDesc && <q class="block italic line-clamp-3">{post.frontmatter.description}</q>}
