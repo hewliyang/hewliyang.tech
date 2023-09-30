@@ -48,5 +48,8 @@
 		"@fontsource/inter": "^4.5.15",
 		"astro-icon": "^0.8.0",
 		"sharp": "^0.31.2"
-	}
+	},
+	"trustedDependencies": [
+		"sharp"
+	]
 }
